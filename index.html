@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>학교별 AI교실 구축 추진 현황</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --paper: #ffffff;
+      --ink: #20242a;
+      --muted: #667085;
+      --line: #d9dee7;
+      --soft: #edf1f5;
+      --accent: #176b87;
+      --accent-2: #b14f2a;
+      --green: #287c62;
+      --yellow: #a46b00;
+      --blue: #2f5fa7;
+      --red: #ad3b3b;
+      --shadow: 0 12px 28px rgba(31, 41, 55, .10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover { border-color: #8aa0b5; }
+
+    .primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .danger {
+      color: var(--red);
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+    }
+
+    header {
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+      padding: 18px 24px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .titlebar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .tabs-wrap {
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+      padding: 10px 24px;
+    }
+
+    .tabs {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .level-tabs {
+      margin-bottom: 8px;
+    }
+
+    .tab {
+      white-space: nowrap;
+      background: var(--soft);
+      border-color: transparent;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .level-tab {
+      font-weight: 800;
+    }
+
+    main {
+      width: min(1440px, calc(100vw - 32px));
+      margin: 16px auto 32px;
+      display: grid;
+      grid-template-columns: 360px minmax(760px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      padding: 16px;
+      position: sticky;
+      top: 120px;
+      z-index: 10;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    input[type="text"], input[type="date"], input[type="url"] {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 7px 9px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .step-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .step-editor {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      background: #fbfcfd;
+    }
+
+    .step-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      flex: 0 0 auto;
+    }
+
+    .dates {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin: 8px 0 0;
+    }
+
+    .timeline {
+      overflow: hidden;
+    }
+
+    .timeline-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .timeline-title {
+      min-width: 0;
+    }
+
+    .timeline-title h2 {
+      margin: 0 0 4px;
+      font-size: 20px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      justify-content: flex-end;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .legend span.inactive {
+      color: #98a2b3;
+      opacity: .65;
+    }
+
+    .legend span.inactive .swatch {
+      background: #c7ccd3 !important;
+    }
+
+    .month-stack {
+      padding: 12px 16px 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .month-row {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      min-height: 112px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .month-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0f4f7;
+      border-right: 1px solid var(--line);
+      font-weight: 800;
+      color: #344054;
+    }
+
+    .days {
+      position: relative;
+      min-width: 620px;
+      height: 112px;
+      background-image:
+        linear-gradient(to right, rgba(17, 24, 39, .09) 1px, transparent 1px),
+        linear-gradient(to right, rgba(23, 107, 135, .16) 1px, transparent 1px);
+      background-size: var(--day-width) 100%, calc(var(--day-width) * 7) 100%;
+    }
+
+    .day-num {
+      position: absolute;
+      top: 5px;
+      transform: translateX(-50%);
+      color: #8a94a6;
+      font-size: 10px;
+      pointer-events: none;
+    }
+
+    .bar {
+      position: absolute;
+      height: 22px;
+      border-radius: 5px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: grab;
+      user-select: none;
+      box-shadow: 0 5px 12px rgba(16, 24, 40, .18);
+    }
+
+    .bar:active { cursor: grabbing; }
+
+    .bar.inactive {
+      background: #c7ccd3 !important;
+      color: #667085;
+      opacity: .45;
+      box-shadow: none;
+      filter: grayscale(1);
+    }
+
+    .today-marker {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      border-left: 3px solid #d92d20;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .today-marker::after {
+      content: "오늘";
+      position: absolute;
+      top: 4px;
+      left: 5px;
+      background: #d92d20;
+      color: #fff;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .handle {
+      position: absolute;
+      top: 0;
+      width: 10px;
+      height: 100%;
+      background: rgba(255, 255, 255, .5);
+      cursor: ew-resize;
+    }
+
+    .handle.left { left: 0; }
+    .handle.right { right: 0; }
+
+    .report-view {
+      display: none;
+      width: min(1440px, calc(100vw - 32px));
+      margin: 16px auto 32px;
+    }
+
+    .report-school {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 18px;
+      break-inside: avoid;
+    }
+
+    .report-school h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    body.print-preview main,
+    body.print-preview .tabs-wrap {
+      display: none;
+    }
+
+    body.print-preview .report-view {
+      display: block;
+    }
+
+    .print-help {
+      display: none;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    body.print-preview .print-help {
+      display: block;
+    }
+
+    @media (max-width: 980px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        position: static;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 10mm;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      header, .tabs-wrap, main {
+        display: none !important;
+      }
+
+      .report-view {
+        display: block !important;
+        width: 100%;
+        margin: 0;
+      }
+
+      .report-school {
+        box-shadow: none;
+        border: 0;
+        padding: 0;
+        margin: 0 0 8mm;
+        page-break-inside: avoid;
+      }
+
+      .month-stack {
+        padding: 0;
+        gap: 6px;
+      }
+
+      .month-row {
+        min-height: 86px;
+      }
+
+      .days {
+        height: 86px;
+      }
+
+      .bar {
+        height: 18px;
+        font-size: 9px;
+        box-shadow: none;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .month-label {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="titlebar">
+        <div>
+          <h1>학교별 AI교실 구축 추진 현황</h1>
+          <p class="sub">기간: 2026.04.01 ~ 2026.09.30</p>
+          <p class="print-help">PDF 저장은 브라우저 인쇄 창에서 “PDF로 저장”을 선택하면 됩니다.</p>
+        </div>
+        <div class="actions">
+          <button id="toggleReport">PDF 출력 모드</button>
+          <button id="printPdf" class="primary">PDF 저장/인쇄</button>
+          <button id="exportJson">자료 내보내기</button>
+          <button id="importJson">자료 불러오기</button>
+          <input id="fileInput" type="file" accept="application/json" hidden />
+        </div>
+      </div>
+    </header>
+
+    <section class="tabs-wrap">
+      <div class="tabs level-tabs" id="levelTabs"></div>
+      <div class="tabs" id="tabs"></div>
+    </section>
+
+    <main>
+      <section class="panel controls">
+        <div class="field">
+          <label for="schoolName">학교명</label>
+          <input id="schoolName" type="text" />
+        </div>
+        <div class="actions" style="justify-content:flex-start">
+          <button id="addSchool" class="primary">학교 추가</button>
+          <button id="deleteSchool" class="danger">현재 학교 삭제</button>
+        </div>
+
+        <p class="hint">날짜 입력칸 위에서 마우스 휠을 굴리면 하루씩 조정됩니다. 막대는 좌우로 끌어서 이동하고 양끝을 끌어 기간을 조정할 수 있습니다.</p>
+
+        <div class="step-list" id="stepList"></div>
+
+      </section>
+
+      <section class="panel timeline">
+        <div class="timeline-head">
+          <div class="timeline-title">
+            <h2 id="activeTitle"></h2>
+          </div>
+          <div class="legend" id="legend"></div>
+        </div>
+        <div class="month-stack" id="monthStack"></div>
+      </section>
+    </main>
+
+    <section class="report-view" id="reportView"></section>
+  </div>
+
+  <script>
+    const MIN_DATE = new Date(2026, 3, 1);
+    const MAX_DATE = new Date(2026, 8, 30);
+    const months = [
+      { index: 3, label: "4월", days: 30 },
+      { index: 4, label: "5월", days: 31 },
+      { index: 5, label: "6월", days: 30 },
+      { index: 6, label: "7월", days: 31 },
+      { index: 7, label: "8월", days: 31 },
+      { index: 8, label: "9월", days: 30 }
+    ];
+    const stages = [
+      "계획수립",
+      "설계도 완성",
+      "설계도 검토(지역청)",
+      "시공 의뢰",
+      "시공 및 물품 구입",
+      "최종 점검(도교육청)"
+    ];
+    const schoolLevels = ["초등학교", "중학교", "고등학교"];
+    const colors = ["#176b87", "#287c62", "#a46b00", "#2f5fa7", "#b14f2a", "#7a4f9f"];
+    const defaultStarts = ["2026-05-20", "2026-06-01", "2026-06-10", "2026-06-20", "2026-07-01", "2026-08-20"];
+    const defaultEnds = ["2026-05-31", "2026-06-09", "2026-06-19", "2026-06-30", "2026-08-19", "2026-08-30"];
+    const storageKey = "ai-class-gantt-v1";
+    const today = new Date();
+
+    let state = loadState();
+    let activeLevel = 0;
+    let activeSchool = 0;
+    let drag = null;
+
+    const el = {
+      levelTabs: document.getElementById("levelTabs"),
+      tabs: document.getElementById("tabs"),
+      schoolName: document.getElementById("schoolName"),
+      stepList: document.getElementById("stepList"),
+      activeTitle: document.getElementById("activeTitle"),
+      legend: document.getElementById("legend"),
+      monthStack: document.getElementById("monthStack"),
+      reportView: document.getElementById("reportView")
+    };
+
+    function loadState() {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        try { return normalize(JSON.parse(saved)); } catch (error) {}
+      }
+      return normalize({
+        inactiveStages: [],
+        levels: schoolLevels.map((level, index) => ({
+          name: level,
+          schools: index === 0 ? [makeSchool("학교 1")] : []
+        }))
+      });
+    }
+
+    function normalize(data) {
+      if (!Array.isArray(data.levels)) {
+        data.levels = schoolLevels.map((level, index) => ({
+          name: level,
+          schools: index === 0 ? (data.schools || [makeSchool("학교 1")]) : []
+        }));
+        delete data.schools;
+      }
+      data.levels = schoolLevels.map((level, levelIndex) => {
+        const savedLevel = data.levels[levelIndex] || {};
+        return {
+          name: level,
+          schools: Array.isArray(savedLevel.schools) ? savedLevel.schools : []
+        };
+      });
+      if (!data.levels.some(level => level.schools.length)) {
+        data.levels[0].schools = [makeSchool("학교 1")];
+      }
+      data.levels = data.levels.map(level => ({
+        ...level,
+        schools: level.schools.map((school, schoolIndex) => ({
+        name: school.name || `학교 ${schoolIndex + 1}`,
+        tasks: stages.map((name, index) => {
+          const task = school.tasks?.[index] || {};
+          return {
+            name,
+            start: clampDateString(task.start || defaultStarts[index]),
+            end: clampDateString(task.end || defaultEnds[index])
+          };
+        })
+        }))
+      }));
+      data.inactiveStages = Array.isArray(data.inactiveStages) ? data.inactiveStages : [];
+      return data;
+    }
+
+    function makeSchool(name) {
+      return {
+        name,
+        tasks: stages.map((stage, index) => ({
+          name: stage,
+          start: defaultStarts[index],
+          end: defaultEnds[index]
+        }))
+      };
+    }
+
+    function save() {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    function dateToString(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function parseDate(value) {
+      const [y, m, d] = value.split("-").map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function clampDate(date) {
+      if (date < MIN_DATE) return new Date(MIN_DATE);
+      if (date > MAX_DATE) return new Date(MAX_DATE);
+      return date;
+    }
+
+    function clampDateString(value) {
+      return dateToString(clampDate(parseDate(value)));
+    }
+
+    function addDays(value, days) {
+      const date = parseDate(value);
+      date.setDate(date.getDate() + days);
+      return clampDateString(dateToString(date));
+    }
+
+    function daysBetween(a, b) {
+      return Math.round((parseDate(b) - parseDate(a)) / 86400000);
+    }
+
+    function ensureOrder(task, changed) {
+      if (parseDate(task.start) > parseDate(task.end)) {
+        if (changed === "start") task.end = task.start;
+        else task.start = task.end;
+      }
+    }
+
+    function active() {
+      return activeSchools()[activeSchool];
+    }
+
+    function activeSchools() {
+      return state.levels[activeLevel].schools;
+    }
+
+    function ensureActiveSchool() {
+      const schools = activeSchools();
+      if (!schools.length) schools.push(makeSchool(`${state.levels[activeLevel].name} 1`));
+      if (activeSchool >= schools.length) activeSchool = schools.length - 1;
+      if (activeSchool < 0) activeSchool = 0;
+    }
+
+    function render() {
+      ensureActiveSchool();
+      save();
+      renderLevelTabs();
+      renderTabs();
+      renderControls();
+      renderLegend();
+      renderTimeline(el.monthStack, active());
+      renderReport();
+    }
+
+    function renderLevelTabs() {
+      el.levelTabs.innerHTML = "";
+      state.levels.forEach((level, index) => {
+        const button = document.createElement("button");
+        button.className = `tab level-tab${index === activeLevel ? " active" : ""}`;
+        button.textContent = level.name;
+        button.onclick = () => {
+          activeLevel = index;
+          activeSchool = 0;
+          document.body.classList.remove("print-preview");
+          render();
+        };
+        el.levelTabs.append(button);
+      });
+    }
+
+    function renderTabs() {
+      el.tabs.innerHTML = "";
+      activeSchools().forEach((school, index) => {
+        const button = document.createElement("button");
+        button.className = `tab${index === activeSchool ? " active" : ""}`;
+        button.textContent = school.name;
+        button.onclick = () => {
+          activeSchool = index;
+          document.body.classList.remove("print-preview");
+          render();
+        };
+        el.tabs.append(button);
+      });
+    }
+
+    function renderControls() {
+      const school = active();
+      el.schoolName.value = school.name;
+      el.activeTitle.textContent = school.name;
+      el.stepList.innerHTML = "";
+
+      school.tasks.forEach((task, index) => {
+        const card = document.createElement("div");
+        card.className = "step-editor";
+        card.innerHTML = `
+          <div class="step-head">
+            <span style="display:flex;align-items:center;gap:7px">
+              <span class="swatch" style="background:${colors[index]}"></span>${index + 1}. ${task.name}
+            </span>
+            <span>${daysBetween(task.start, task.end) + 1}일</span>
+          </div>
+          <div class="dates">
+            <div class="field" style="margin:0">
+              <label>시작일</label>
+              <input type="date" min="2026-04-01" max="2026-09-30" value="${task.start}" data-field="start" data-index="${index}">
+            </div>
+            <div class="field" style="margin:0">
+              <label>종료일</label>
+              <input type="date" min="2026-04-01" max="2026-09-30" value="${task.end}" data-field="end" data-index="${index}">
+            </div>
+          </div>
+        `;
+        el.stepList.append(card);
+      });
+
+      el.stepList.querySelectorAll("input[type=date]").forEach(input => {
+        input.addEventListener("change", event => {
+          const task = active().tasks[Number(event.target.dataset.index)];
+          const field = event.target.dataset.field;
+          task[field] = clampDateString(event.target.value);
+          ensureOrder(task, field);
+          render();
+        });
+        input.addEventListener("wheel", event => {
+          event.preventDefault();
+          const task = active().tasks[Number(event.target.dataset.index)];
+          const field = event.target.dataset.field;
+          task[field] = addDays(task[field], event.deltaY > 0 ? 1 : -1);
+          ensureOrder(task, field);
+          render();
+        }, { passive: false });
+      });
+    }
+
+    function renderLegend() {
+      el.legend.innerHTML = "";
+      stages.forEach((stage, index) => {
+        const item = document.createElement("span");
+        item.className = state.inactiveStages.includes(index) ? "inactive" : "";
+        item.innerHTML = `<i class="swatch" style="background:${colors[index]}"></i>${stage}`;
+        item.onclick = () => {
+          if (state.inactiveStages.includes(index)) {
+            state.inactiveStages = state.inactiveStages.filter(value => value !== index);
+          } else {
+            state.inactiveStages.push(index);
+          }
+          render();
+        };
+        el.legend.append(item);
+      });
+    }
+
+    function renderTimeline(container, school) {
+      container.innerHTML = "";
+      months.forEach(month => {
+        const row = document.createElement("div");
+        row.className = "month-row";
+        row.innerHTML = `<div class="month-label">${month.label}</div><div class="days"></div>`;
+        const days = row.querySelector(".days");
+        days.style.setProperty("--day-width", `${100 / month.days}%`);
+
+        for (let d = 1; d <= month.days; d += 1) {
+          const label = document.createElement("span");
+          label.className = "day-num";
+          label.textContent = d;
+          label.style.left = `${((d - .5) / month.days) * 100}%`;
+          days.append(label);
+        }
+
+        addTodayMarker(days, month);
+
+        school.tasks.forEach((task, taskIndex) => {
+          const piece = taskPieceForMonth(task, month);
+          if (!piece) return;
+          const bar = document.createElement("div");
+          bar.className = `bar${state.inactiveStages.includes(taskIndex) ? " inactive" : ""}`;
+          bar.dataset.task = taskIndex;
+          bar.style.background = colors[taskIndex];
+          bar.style.left = `${piece.left}%`;
+          bar.style.width = `${piece.width}%`;
+          bar.style.top = `${26 + taskIndex * 13}px`;
+          bar.title = `${task.name}: ${task.start} ~ ${task.end}`;
+          bar.textContent = task.name;
+          bar.innerHTML += `<span class="handle left" data-mode="start"></span><span class="handle right" data-mode="end"></span>`;
+          bar.addEventListener("pointerdown", startDrag);
+          days.append(bar);
+        });
+
+        container.append(row);
+      });
+    }
+
+    function addTodayMarker(container, month) {
+      if (today.getFullYear() !== 2026 || today.getMonth() !== month.index) return;
+      const marker = document.createElement("div");
+      marker.className = "today-marker";
+      marker.style.left = `${((today.getDate() - .5) / month.days) * 100}%`;
+      container.append(marker);
+    }
+
+    function taskPieceForMonth(task, month) {
+      const monthStart = new Date(2026, month.index, 1);
+      const monthEnd = new Date(2026, month.index, month.days);
+      const start = parseDate(task.start);
+      const end = parseDate(task.end);
+      if (end < monthStart || start > monthEnd) return null;
+      const visibleStart = start < monthStart ? monthStart : start;
+      const visibleEnd = end > monthEnd ? monthEnd : end;
+      const leftDays = visibleStart.getDate() - 1;
+      const widthDays = visibleEnd.getDate() - visibleStart.getDate() + 1;
+      return {
+        left: (leftDays / month.days) * 100,
+        width: (widthDays / month.days) * 100
+      };
+    }
+
+    function startDrag(event) {
+      const bar = event.currentTarget;
+      const taskIndex = Number(bar.dataset.task);
+      const mode = event.target.dataset.mode || "move";
+      const daysEl = bar.parentElement;
+      const width = daysEl.getBoundingClientRect().width;
+      const monthRow = daysEl.parentElement;
+      const label = monthRow.querySelector(".month-label").textContent;
+      const month = months.find(item => item.label === label);
+      drag = {
+        taskIndex,
+        mode,
+        startX: event.clientX,
+        width,
+        monthDays: month.days,
+        original: { ...active().tasks[taskIndex] }
+      };
+      bar.setPointerCapture(event.pointerId);
+      window.addEventListener("pointermove", onDrag);
+      window.addEventListener("pointerup", endDrag, { once: true });
+    }
+
+    function onDrag(event) {
+      if (!drag) return;
+      const deltaDays = Math.round((event.clientX - drag.startX) / (drag.width / drag.monthDays));
+      const task = active().tasks[drag.taskIndex];
+      const length = daysBetween(drag.original.start, drag.original.end);
+      if (drag.mode === "start") {
+        task.start = addDays(drag.original.start, deltaDays);
+        ensureOrder(task, "start");
+      } else if (drag.mode === "end") {
+        task.end = addDays(drag.original.end, deltaDays);
+        ensureOrder(task, "end");
+      } else {
+        let nextStart = addDays(drag.original.start, deltaDays);
+        let nextEnd = addDays(drag.original.end, deltaDays);
+        if (parseDate(nextStart) <= MIN_DATE) {
+          nextStart = dateToString(MIN_DATE);
+          nextEnd = addDays(nextStart, length);
+        }
+        if (parseDate(nextEnd) >= MAX_DATE) {
+          nextEnd = dateToString(MAX_DATE);
+          nextStart = addDays(nextEnd, -length);
+        }
+        task.start = nextStart;
+        task.end = nextEnd;
+      }
+      renderControls();
+      renderTimeline(el.monthStack, active());
+      renderReport();
+      save();
+    }
+
+    function endDrag() {
+      window.removeEventListener("pointermove", onDrag);
+      drag = null;
+    }
+
+    function renderReport() {
+      el.reportView.innerHTML = "";
+      state.levels.forEach(level => {
+        level.schools.forEach(school => {
+          const section = document.createElement("section");
+          section.className = "report-school";
+          section.innerHTML = `<h2>${level.name} · ${school.name}</h2><div class="month-stack"></div>`;
+          renderTimeline(section.querySelector(".month-stack"), school);
+          el.reportView.append(section);
+        });
+      });
+    }
+
+    document.getElementById("addSchool").onclick = () => {
+      const schools = activeSchools();
+      schools.push(makeSchool(`${state.levels[activeLevel].name} ${schools.length + 1}`));
+      activeSchool = schools.length - 1;
+      render();
+    };
+
+    document.getElementById("deleteSchool").onclick = () => {
+      const schools = activeSchools();
+      if (schools.length === 1) return;
+      schools.splice(activeSchool, 1);
+      activeSchool = Math.max(0, activeSchool - 1);
+      render();
+    };
+
+    el.schoolName.addEventListener("input", event => {
+      active().name = event.target.value || "학교";
+      save();
+      renderTabs();
+      el.activeTitle.textContent = active().name;
+      renderReport();
+    });
+
+    document.getElementById("toggleReport").onclick = () => {
+      document.body.classList.toggle("print-preview");
+    };
+
+    document.getElementById("printPdf").onclick = () => {
+      document.body.classList.add("print-preview");
+      setTimeout(() => window.print(), 120);
+    };
+
+    document.getElementById("exportJson").onclick = () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "ai-class-gantt-data.json";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    };
+
+    document.getElementById("importJson").onclick = () => {
+      document.getElementById("fileInput").click();
+    };
+
+    document.getElementById("fileInput").addEventListener("change", event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          state = normalize(JSON.parse(reader.result));
+          activeLevel = 0;
+          activeSchool = 0;
+          render();
+        } catch (error) {
+          alert("자료 파일을 읽을 수 없습니다.");
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    render();
+  </script>
+</body>
+</html>
